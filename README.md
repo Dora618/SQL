@@ -1,2 +1,2 @@
 # SQL
-SQL related projects
+SQL related projects including data cleaning and exploratory data analysis.
