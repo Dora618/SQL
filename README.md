@@ -3,7 +3,7 @@ This repository contains all SQL-related projects, including data cleaning and e
 
 
 
-World Layoffs
+## World Layoffs
 
 This topic includes two datasets: layoffs.csv and layoffs_v2.csv.
 
