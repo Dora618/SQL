@@ -7,8 +7,9 @@ This repository contains all SQL-related projects, including data cleaning and e
 
 This topic includes two datasets: layoffs.csv and layoffs_v2.csv.
 
-The data begins from March 11, 2020, the date COVID-19 was declared a pandemic.
-- layoffs.csv contains data up to March 11, 2023.
-- layoffs_v2.csv extends the dataset through April 21, 2025, and was sourced from Kaggle.
+- layoffs.csv covers data from March 11, 2020 (the day COVID-19 was declared a pandemic) to March 11, 2023.
+- layoffs_v2.csv extends the dataset to April 21, 2025, and was sourced from Kaggle.
 
-Please note that some details—such as sources, specific employee lists, and date of data addition—have been omitted in the CSV files. The complete dataset is available at Layoffs.fyi.
+The layoffs.csv dataset has been cleaned and analyzed. For layoffs_v2.csv, only the additional data not included in layoffs.csv has been cleaned and analyzed to avoid duplication.
+
+The complete dataset is available at Layoffs.fyi.
