@@ -74,7 +74,109 @@ select distinct stage
 from layoffs_v2_staging
 order by 1;
 
-select company, sum(total_laid_off)
+select distinct company, trim(company)
 from layoffs_v2_staging
-group by company
-order by 2;
+order by 1;
+
+update layoffs_v2_staging
+set company = trim(company)
+;
+
+select * 
+from layoffs_v2_staging
+where `date` is null or trim(`date`)='';
+
+/*
+The below queries take two different ways list the top 5 companies 
+with the highest number of layoffs for each year.
+*/
+
+-- nested 
+with top5 as 
+(
+	with toplist as 
+	(
+		select company, year(`date`) as `year`,  sum(total_laid_off) as total_laid_off 
+		from layoffs_v2_staging
+		group by company, `year`
+	)
+	select *, dense_rank() over(partition by `year` order by total_laid_off desc) as ranking
+	from toplist
+)
+select * 
+from top5
+where ranking<=5
+;
+
+-- not nested
+with toplist as 
+(
+	select company, year(`date`) as `year`,  sum(total_laid_off) as total_laid_off 
+	from layoffs_v2_staging
+	group by company, `year`
+), top5 as
+(
+	select *, dense_rank() over(partition by `year` order by total_laid_off desc) as ranking
+	from toplist
+)
+select * 
+from top5
+where ranking<=5
+;
+
+/*
+The below creates a new table (`top_laid_off`) and populates it with the top 5 ranked companies by total layoffs 
+for each year. It combines records from the current dataset (`layoffs_v2_staging`) and a previous dataset 
+(`layoffs_v1_2020_2023.layoffs_staging2`) into the same table for comparison and analysis.
+*/
+
+drop table if exists `top_laid_off`;
+CREATE TABLE `top_laid_off` (
+  `company` text,
+  `years` int,
+  `total_laid_off` text,
+  `ranking` text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+select * from top_laid_off;
+
+insert top_laid_off
+select *
+from (
+	select*
+    from(
+		select *, dense_rank() over(partition by `years` order by total_laid_off desc) as ranking
+		from (
+			select company, year(`date`) as `years`,  sum(total_laid_off) as total_laid_off 
+			from layoffs_v2_staging
+			group by company, `years`
+			) as toplist
+		) as ranked
+	where ranking <=5
+) as top5;
+
+
+insert top_laid_off 
+select *
+from (
+	select *
+	from (
+		select *, 
+		dense_rank() over(partition by years order by total_laid_off desc) as ranking
+		from (
+			select company, year(`date`) as years, sum(total_laid_off) as total_laid_off
+			from layoffs_v1_2020_2023.layoffs_staging2
+			group by company, years
+			) as company_year
+	) as ranked
+	where ranking<=5
+) as top5;
+
+select *
+from top_laid_off
+order by ranking, years -- Meta and Intel ranked No.1 for two consecutive years
+
+
+
+
+
